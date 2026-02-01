@@ -39,29 +39,55 @@ public class Wertinator {
                 String taskInformation = sentence[1];
 
                 if (command.equals("mark")) {
-                    int index = Integer.parseInt(taskInformation) - 1;
-                    this.doneTask(index);
+                    try {
+                        int index = Integer.parseInt(taskInformation) - 1;
+                        if (index > listOfTasks.size() || index < 0 ){
+                            System.out.println("Check the Index again?");
+                        }
+                        else {
+                            this.doneTask(index);
+                        }
+                    }
+                    catch (NumberFormatException e){
+                        System.out.println("Bro, thats not a number");
+                        continue;
+                    }
                 }
                 else if (command.equals("unmark")) {
-                    int index = Integer.parseInt(taskInformation) - 1;
-                    this.undoTask(index);
+                    try {
+                        int index = Integer.parseInt(taskInformation) - 1;
+                        if (index > listOfTasks.size() || index < 0){
+                            System.out.println("Check your number again");
+                        }
+                        else{
+                            this.undoTask(index);
+                        }
+                    }
+                    catch (NumberFormatException e){
+                        System.out.println("Key a number. A number do you know it?");
+                        continue;
+                    }
                 }
                 else if (command.equals("todo")) {
                     System.out.println("Aight man, one more thing on the to do list.");
-                    String taskName = taskInformation;
+                    String taskName = taskInformation.trim();
                     Task newTask = new Task(taskName, Task.TaskTypes.T);
                     this.listOfTasks.add(newTask);
                 }
                 else if (command.equals("deadline")) {
                     String[] information = taskInformation.trim().split("/", 2);
-                    String taskName = information[0];
+                    String taskName = information[0].trim();
                     if (information.length==2) {
-                        String remarks = information[1];
-
-                        System.out.println("Deadline coming, ya better hurry de hail up.");
-                        Task newTask = new Task(taskName, Task.TaskTypes.D);
-                        newTask.setRemarks(remarks);
-                        this.listOfTasks.add(newTask);
+                        String remarks = information[1].trim();
+                        if (remarks.isBlank()){
+                            System.out.println("You didn't tell me when its due man.");
+                        }
+                        else {
+                            System.out.println("Deadline coming, ya better hurry de hail up.");
+                            Task newTask = new Task(taskName, Task.TaskTypes.D);
+                            newTask.setRemarks(remarks);
+                            this.listOfTasks.add(newTask);
+                        }
                     }
                     else {
                         System.out.println("Whats the deadline bro?");
@@ -69,14 +95,18 @@ public class Wertinator {
                 }
                 else if (command.equals("event")) {
                     String[] information = taskInformation.trim().split("/", 2);
-                    String taskName = information[0];
+                    String taskName = information[0].trim();
                     if (information.length == 2) {
-                        String remarks = information[1];
-
-                        System.out.println("Betta prep for this event brotherman.");
-                        Task newTask = new Task(taskName, Task.TaskTypes.E);
-                        newTask.setRemarks(remarks);
-                        this.listOfTasks.add(newTask);
+                        String remarks = information[1].trim();
+                        if (remarks.isBlank()){
+                            System.out.println("When is the event broman?");
+                        }
+                        else {
+                            System.out.println("Betta prep for this event brotherman.");
+                            Task newTask = new Task(taskName, Task.TaskTypes.E);
+                            newTask.setRemarks(remarks);
+                            this.listOfTasks.add(newTask);
+                        }
                     }
                     else {
                         System.out.println("When's the thing happening?");
