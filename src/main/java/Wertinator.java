@@ -68,6 +68,28 @@ public class Wertinator {
                         continue;
                     }
                 }
+                else if (command.equals("delete")){
+                    if (listOfTasks.size()==0){
+                        System.out.println("Theres nothing. What you trying to delete?");
+                    }
+                    else{
+                        try {
+                            int index = Integer.parseInt(taskInformation) - 1;
+                            if (index > listOfTasks.size() || index < 0){
+                                System.out.println("Cant delete something thats not there Bro.");
+                            }
+                            else{
+                                System.out.println("removing this one. You sure you dont need it no more?");
+                                System.out.println(listOfTasks.get(index));
+                                this.deleteTask(index);
+                            }
+                        }
+                        catch (NumberFormatException e) {
+                            System.out.println("Key a number. A number do you know it?");
+                            continue;
+                        }
+                    }
+                }
                 else if (command.equals("todo")) {
                     System.out.println("Aight man, one more thing on the to do list.");
                     String taskName = taskInformation.trim();
@@ -142,6 +164,9 @@ public class Wertinator {
     }
     public void undoTask(int index){
         listOfTasks.get(index).markAsUndone();
+    }
+    public void deleteTask(int index){
+        listOfTasks.remove(index);
     }
 
     //class Task to track tasks
