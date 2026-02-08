@@ -1,9 +1,13 @@
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner ;
+import java.io.IOException;
 
 public class Wertinator {
 
     private ArrayList<Task> listOfTasks = new ArrayList<>();
+    private static final String DATA_PATH = "data/Wertinator.txt";
+    private final Storage storage = new Storage(DATA_PATH);
 
     public static void main(String[] args) {
         new Wertinator().run();
@@ -17,11 +21,24 @@ public class Wertinator {
 
         Scanner input = new Scanner(System.in);
 
+        try {
+            List<String> lines = storage.loadLines();
+            for (String savedLine : lines) {
+                Task t = parseTaskFromLine(savedLine);
+                if (t != null) {
+                    listOfTasks.add(t);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Could not load saved tasks.");
+        }
+
         while(true) {
             String line = input.nextLine();
 
             String[] sentence = splitInstruction(line);
             String command = sentence[0];
+            boolean listHasBeenModified = false;
 
             if (sentence.length == 1){
                 if (line.equals("bye")) {
@@ -95,6 +112,7 @@ public class Wertinator {
                     String taskName = taskInformation.trim();
                     Task newTask = new Task(taskName, Task.TaskTypes.T);
                     this.listOfTasks.add(newTask);
+                    saveSafely();
                 }
                 else if (command.equals("deadline")) {
                     String[] information = taskInformation.trim().split("/", 2);
@@ -109,6 +127,7 @@ public class Wertinator {
                             Task newTask = new Task(taskName, Task.TaskTypes.D);
                             newTask.setRemarks(remarks);
                             this.listOfTasks.add(newTask);
+                            saveSafely();
                         }
                     }
                     else {
@@ -128,6 +147,7 @@ public class Wertinator {
                             Task newTask = new Task(taskName, Task.TaskTypes.E);
                             newTask.setRemarks(remarks);
                             this.listOfTasks.add(newTask);
+                            saveSafely();
                         }
                     }
                     else {
@@ -137,9 +157,11 @@ public class Wertinator {
                 else {
                     System.out.println("You speaking gibberish or something bro?");
                 }
+
             }
 
             System.out.println();
+
         }
         System.out.println("See you next time. \n"
         + "Peace out. \n" );
@@ -159,14 +181,52 @@ public class Wertinator {
         return line.trim().split(" ",2);
     }
 
+    private void saveSafely() {
+        try {
+            ArrayList<String> out = new ArrayList<>();
+            for (Task t : listOfTasks) {
+                out.add(toLine(t));
+            }
+            storage.saveLines(out);
+        } catch (IOException e) {
+            System.out.println("Could not save tasks.");
+        }
+    }
+
+    private String toLine(Task t) {
+        // TYPE | done | name | remarks
+        String done = t.isDone() ? "1" : "0";
+        return t.getTaskType() + " | " + done + " | " + t.getName() + " | " + t.getRemarks();
+    }
+
+    private Task parseTaskFromLine(String line) {
+        if (line == null || line.isBlank()) return null;
+
+        String[] p = line.split(" \\| ", -1);
+        if (p.length < 3) return null;
+
+        Task.TaskTypes type = Task.TaskTypes.valueOf(p[0]);
+        boolean done = p[1].equals("1");
+        String name = p[2];
+        String remarks = (p.length >= 4) ? p[3] : "";
+
+        Task t = new Task(name, type);
+        t.setDone(done);
+        t.setRemarks(remarks);
+        return t;
+    }
+
     public void doneTask(int index){
         listOfTasks.get(index).markAsDone();
+        saveSafely();
     }
     public void undoTask(int index){
         listOfTasks.get(index).markAsUndone();
+        saveSafely();
     }
     public void deleteTask(int index){
         listOfTasks.remove(index);
+        saveSafely();
     }
 
     //class Task to track tasks
@@ -190,14 +250,19 @@ public class Wertinator {
             System.out.println("Nice one mate!");
             System.out.println(this);
         }
+
         public void markAsUndone(){
             this.doneness = false;
             System.out.println("Aww wadehail ?! Theres more to that thing?!");
             System.out.println(this);
         }
+        public void setDone(boolean done) {
+            this.doneness = done;
+        }
         public boolean isDone(){
             return doneness;
         }
+
         public String getName(){
             return this.name;
         }
@@ -219,7 +284,7 @@ public class Wertinator {
             if (this.isDone()){
                 donenessIcon = "X";
             }
-            if (this.remarks != ""){
+            if (!this.remarks.isBlank()) {
                 return "[" + this.getTaskType() + "] [" + donenessIcon + "] " + this.getName() + " (" + this.getRemarks() +") ";
             }
             return "[" + this.getTaskType() + "] [" + donenessIcon + "] " + this.getName() ;
