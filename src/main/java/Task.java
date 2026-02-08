@@ -41,7 +41,11 @@ public class Task {
 
     //setters
     public void setRemarks(String remarks) {
-        this.remarks = (remarks == null) ? "" : remarks;
+        if (remarks == null) {
+            this.remarks = "";
+        } else {
+            this.remarks = remarks;
+        }
     }
 
     public void setDone(boolean done) {
@@ -64,7 +68,9 @@ public class Task {
     }
 
     public String getFormattedDate() {
-        if (date == null) return "";
+        if (date == null) {
+            return "";
+        }
         return date.format(DISPLAY_FORMAT);
     }
 
@@ -78,12 +84,28 @@ public class Task {
 
     @Override
     public String toString() {
-        String doneSymbol = doneness ? "X" : " ";
-        String typeSymbol = switch (taskType) {
-            case TODO -> "T";
-            case DEADLINE -> "D";
-            case EVENT -> "E";
-        };
+        String doneSymbol;
+        if (doneness){
+            doneSymbol = "X";
+        }
+        else {
+            doneSymbol = " ";
+        }
+
+        String typeSymbol;
+        switch (taskType) {
+            case TODO:
+                typeSymbol = "T";
+                break;
+            case DEADLINE:
+                typeSymbol = "D";
+                break;
+            case EVENT:
+                typeSymbol = "E";
+                break;
+            default:
+                typeSymbol = "?";
+        }
 
         if (taskType == TaskTypes.DEADLINE && date != null) {
             return "[" + typeSymbol + "][" + doneSymbol + "] " + name + " (by: " + getFormattedDate() + ")";
