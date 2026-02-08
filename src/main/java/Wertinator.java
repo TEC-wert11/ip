@@ -110,7 +110,7 @@ public class Wertinator {
                 else if (command.equals("todo")) {
                     System.out.println("Aight man, one more thing on the to do list.");
                     String taskName = taskInformation.trim();
-                    Task newTask = new Task(taskName, Task.TaskTypes.T);
+                    Task newTask = new Task(taskName, Task.TaskTypes.TODO);
                     this.listOfTasks.add(newTask);
                     saveSafely();
                 }
@@ -124,7 +124,7 @@ public class Wertinator {
                         }
                         else {
                             System.out.println("Deadline coming, ya better hurry de hail up.");
-                            Task newTask = new Task(taskName, Task.TaskTypes.D);
+                            Task newTask = new Task(taskName, Task.TaskTypes.DEADLINE);
                             newTask.setRemarks(remarks);
                             this.listOfTasks.add(newTask);
                             saveSafely();
@@ -144,7 +144,7 @@ public class Wertinator {
                         }
                         else {
                             System.out.println("Betta prep for this event brotherman.");
-                            Task newTask = new Task(taskName, Task.TaskTypes.E);
+                            Task newTask = new Task(taskName, Task.TaskTypes.EVENT);
                             newTask.setRemarks(remarks);
                             this.listOfTasks.add(newTask);
                             saveSafely();
@@ -193,27 +193,55 @@ public class Wertinator {
         }
     }
 
-    private String toLine(Task t) {
-        // TYPE | done | name | remarks
-        String done = t.isDone() ? "1" : "0";
-        return t.getTaskType() + " | " + done + " | " + t.getName() + " | " + t.getRemarks();
+    private String toLine(Task task) {
+
+        String doneFlag;
+        if (task.isDone()) {
+            doneFlag = "1";
+        } else {
+            doneFlag = "0";
+        }
+
+        String dateField = "";
+
+        if (task.getDate() != null) {
+            dateField = task.getDate().toString(); // yyyy-mm-dd
+        }
+
+        return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | " + dateField;
     }
 
     private Task parseTaskFromLine(String line) {
-        if (line == null || line.isBlank()) return null;
+        if (line == null || line.isBlank()) {
+            return null;
+        }
 
-        String[] p = line.split(" \\| ", -1);
-        if (p.length < 3) return null;
+        String[] parts = line.split(" \\| ", -1);
+        //if somehow theres less than 3 things (tasktype, doneness, name), the line is invalid
+        if (parts.length < 3) {
+            return null;
+        }
 
-        Task.TaskTypes type = Task.TaskTypes.valueOf(p[0]);
-        boolean done = p[1].equals("1");
-        String name = p[2];
-        String remarks = (p.length >= 4) ? p[3] : "";
+        Task.TaskTypes type = Task.TaskTypes.valueOf(parts[0]);
+        boolean isDone = parts[1].equals("1");
+        String name = parts[2];
 
-        Task t = new Task(name, type);
-        t.setDone(done);
-        t.setRemarks(remarks);
-        return t;
+        Task task = new Task(name, type);
+        task.setDone(isDone);
+
+        if (parts.length >= 4) {
+            String dateString = parts[3].trim();
+            if (!dateString.isEmpty()) {
+                if (type == Task.TaskTypes.DEADLINE || type == Task.TaskTypes.EVENT) {
+                    try {
+                        task.setDateFromString(dateString);
+                    } catch (IllegalArgumentException e) {
+                        //ignore
+                    }
+                }
+            }
+        }
+        return task;
     }
 
     public void doneTask(int index){
@@ -229,67 +257,6 @@ public class Wertinator {
         saveSafely();
     }
 
-    //class Task to track tasks
-    public static class Task{
-
-        private enum TaskTypes {T, D, E}
-
-        private String name ;
-        private boolean doneness ;
-        private TaskTypes taskType ;
-        private String remarks = "";
-
-        public Task(String name, TaskTypes taskType){
-            this.name = name;
-            this.doneness = false;
-            this.taskType = taskType;
-        }
-
-        public void markAsDone(){
-            this.doneness = true;
-            System.out.println("Nice one mate!");
-            System.out.println(this);
-        }
-
-        public void markAsUndone(){
-            this.doneness = false;
-            System.out.println("Aww wadehail ?! Theres more to that thing?!");
-            System.out.println(this);
-        }
-        public void setDone(boolean done) {
-            this.doneness = done;
-        }
-        public boolean isDone(){
-            return doneness;
-        }
-
-        public String getName(){
-            return this.name;
-        }
-
-        public TaskTypes getTaskType(){
-            return this.taskType;
-        }
-
-        public void setRemarks(String remark){
-            this.remarks = remark;
-        }
-        public String getRemarks(){
-            return this.remarks;
-        }
-
-        @Override
-        public String toString() {
-            String donenessIcon = " ";
-            if (this.isDone()){
-                donenessIcon = "X";
-            }
-            if (!this.remarks.isBlank()) {
-                return "[" + this.getTaskType() + "] [" + donenessIcon + "] " + this.getName() + " (" + this.getRemarks() +") ";
-            }
-            return "[" + this.getTaskType() + "] [" + donenessIcon + "] " + this.getName() ;
-        }
-    }
 }
 
 
