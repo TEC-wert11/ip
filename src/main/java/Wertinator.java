@@ -1,262 +1,229 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner ;
 import java.io.IOException;
 
 public class Wertinator {
+    private Storage storage;
+    private TaskList tasks;
+    private Ui ui;
 
-    private ArrayList<Task> listOfTasks = new ArrayList<>();
-    private static final String DATA_PATH = "data/Wertinator.txt";
-    private final Storage storage = new Storage(DATA_PATH);
+    public Wertinator(String filePath){
+        ui = new Ui();
+        storage = new Storage(filePath);
+        // load tasks
+        try {
+            tasks = new TaskList(storage.loadTasks());
+        }
+        catch (Exception e) {
+            ui.showError("Theres some problem with the saved data mate, I can't load it.");
+            tasks = new TaskList();
+        }
+    }
 
     public static void main(String[] args) {
-        new Wertinator().run();
+        new Wertinator("data/Wertinator.txt").run();
     }
 
-    private void run(){
-        System.out.println("Wassup guys! Wuchu guys doin? \n"
-        + "This is Wertinator, back doing some more werting action! \n"
-        + "What ya wanna do today?" );
-        System.out.println();
+    public void run(){
+        ui.showWelcome();
 
-        Scanner input = new Scanner(System.in);
+        boolean sayGoodBye = false;
+
+        while (!sayGoodBye){
+            String fullCommand = ui.readCommand();
+            String commandWord = Parser.getCommandWord(fullCommand);
+            String arguments = Parser.getArguments(fullCommand);
+
+            ui.showLine();
+
+            if (commandWord.equals("bye")) {
+                ui.showGoodbye();
+                sayGoodBye = true;
+            }
+            else if (commandWord.equals("list")) {
+                handleList();
+            }
+            else if (commandWord.equals("todo")) {
+                handleTodo(arguments);
+            }
+            else if (commandWord.equals("deadline")) {
+                handleDeadline(arguments);
+            }
+            else if (commandWord.equals("event")) {
+                handleEvent(arguments);
+            }
+            else if (commandWord.equals("done")) {
+                handleDone(arguments);
+            }
+            else if (commandWord.equals("undo")) {
+                handleUndo(arguments);
+            }
+            else if (commandWord.equals("delete")) {
+                handleDelete(arguments);
+            }
+            else {
+                ui.showError("Unknown command.");
+            }
+        }
+    }
+
+    private void handleList() {
+        if (tasks.size() == 0) {
+            System.out.println("Nothing to do yet. How nice!");
+            return;
+        }
+
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println((i + 1) + ". " + tasks.get(i));
+        }
+    }
+
+    private void handleTodo(String arguments) {
+        if (arguments.isBlank()) {
+            ui.showError("To do what? Broman.");
+            return;
+        }
+
+        Task task = new Task(arguments.trim(), Task.TaskTypes.TODO);
+        tasks.add(task);
+
+        System.out.println("Gotcha, added this to the todo list: " + task);
+        saveTasksSafely();
+    }
+
+    private void handleDeadline(String arguments) {
+        String[] parts = arguments.split(" /by ", 2);
+
+        if (parts.length < 2) {
+            ui.showError("Follow the correct format man. like: deadline taskname1 /by yyyy-mm-dd");
+            return;
+        }
+
+        String taskDescription = parts[0].trim();
+        String dateString = parts[1].trim();
+
+        if (taskDescription.isEmpty()) {
+            ui.showError("I feel like some deadline is coming, but I cant tell what it is.\n"
+                    + "Hmm... do you know whats coming?");
+            return;
+        }
+
+        Task task = new Task(taskDescription, Task.TaskTypes.DEADLINE);
 
         try {
-            List<String> lines = storage.loadLines();
-            for (String savedLine : lines) {
-                Task t = parseTaskFromLine(savedLine);
-                if (t != null) {
-                    listOfTasks.add(t);
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Could not load saved tasks.");
+            task.setDateFromString(dateString);
+        } catch (IllegalArgumentException e) {
+            ui.showError(e.getMessage());
+            return;
         }
 
-        while(true) {
-            String line = input.nextLine();
+        tasks.add(task);
+        System.out.println("Roger in the dodger, ya better hurry up for this: " + task);
+        saveTasksSafely();
+    }
 
-            String[] sentence = splitInstruction(line);
-            String command = sentence[0];
-            boolean listHasBeenModified = false;
+    private void handleEvent(String arguments) {
+        String[] parts = arguments.split(" /at ", 2);
 
-            if (sentence.length == 1){
-                if (line.equals("bye")) {
-                    break;
-                }
-                else if (command.equals("list")) {
-                    this.printList();
-                }
-                else {
-                    System.out.println("What did you say again?");
-                }
-            }
-
-            if (sentence.length == 2) {
-                String taskInformation = sentence[1];
-
-                if (command.equals("mark")) {
-                    try {
-                        int index = Integer.parseInt(taskInformation) - 1;
-                        if (index > listOfTasks.size() || index < 0 ){
-                            System.out.println("Check the Index again?");
-                        }
-                        else {
-                            this.doneTask(index);
-                        }
-                    }
-                    catch (NumberFormatException e){
-                        System.out.println("Bro, thats not a number");
-                        continue;
-                    }
-                }
-                else if (command.equals("unmark")) {
-                    try {
-                        int index = Integer.parseInt(taskInformation) - 1;
-                        if (index > listOfTasks.size() || index < 0){
-                            System.out.println("Check your number again");
-                        }
-                        else{
-                            this.undoTask(index);
-                        }
-                    }
-                    catch (NumberFormatException e){
-                        System.out.println("Key a number. A number do you know it?");
-                        continue;
-                    }
-                }
-                else if (command.equals("delete")){
-                    if (listOfTasks.size()==0){
-                        System.out.println("Theres nothing. What you trying to delete?");
-                    }
-                    else{
-                        try {
-                            int index = Integer.parseInt(taskInformation) - 1;
-                            if (index > listOfTasks.size() || index < 0){
-                                System.out.println("Cant delete something thats not there Bro.");
-                            }
-                            else{
-                                System.out.println("removing this one. You sure you dont need it no more?");
-                                System.out.println(listOfTasks.get(index));
-                                this.deleteTask(index);
-                            }
-                        }
-                        catch (NumberFormatException e) {
-                            System.out.println("Key a number. A number do you know it?");
-                            continue;
-                        }
-                    }
-                }
-                else if (command.equals("todo")) {
-                    System.out.println("Aight man, one more thing on the to do list.");
-                    String taskName = taskInformation.trim();
-                    Task newTask = new Task(taskName, Task.TaskTypes.TODO);
-                    this.listOfTasks.add(newTask);
-                    saveSafely();
-                }
-                else if (command.equals("deadline")) {
-                    String[] information = taskInformation.trim().split("/", 2);
-                    String taskName = information[0].trim();
-                    if (information.length==2) {
-                        String remarks = information[1].trim();
-                        if (remarks.isBlank()){
-                            System.out.println("You didn't tell me when its due man.");
-                        }
-                        else {
-                            System.out.println("Deadline coming, ya better hurry de hail up.");
-                            Task newTask = new Task(taskName, Task.TaskTypes.DEADLINE);
-                            newTask.setRemarks(remarks);
-                            this.listOfTasks.add(newTask);
-                            saveSafely();
-                        }
-                    }
-                    else {
-                        System.out.println("Whats the deadline bro?");
-                    }
-                }
-                else if (command.equals("event")) {
-                    String[] information = taskInformation.trim().split("/", 2);
-                    String taskName = information[0].trim();
-                    if (information.length == 2) {
-                        String remarks = information[1].trim();
-                        if (remarks.isBlank()){
-                            System.out.println("When is the event broman?");
-                        }
-                        else {
-                            System.out.println("Betta prep for this event brotherman.");
-                            Task newTask = new Task(taskName, Task.TaskTypes.EVENT);
-                            newTask.setRemarks(remarks);
-                            this.listOfTasks.add(newTask);
-                            saveSafely();
-                        }
-                    }
-                    else {
-                        System.out.println("When's the thing happening?");
-                    }
-                }
-                else {
-                    System.out.println("You speaking gibberish or something bro?");
-                }
-
-            }
-
-            System.out.println();
-
+        if (parts.length < 2) {
+            ui.showError("Try using the proper format: event <task> /at yyyy-mm-dd");
+            return;
         }
-        System.out.println("See you next time. \n"
-        + "Peace out. \n" );
-    }
 
-    public void printList(){
-        for (int i = 1; i < listOfTasks.size()+1 ; i++){
-            System.out.println( i + ". " + listOfTasks.get(i-1));
+        String taskDescription = parts[0].trim();
+        String dateString = parts[1].trim();
+
+        if (taskDescription.isEmpty()) {
+            ui.showError("Ya got me excited for a nothing event, how sad.");
+            return;
         }
-    }
 
-//    public void printALine(){
-//        System.out.println("____________________________________________________________");
-//    }
+        Task task = new Task(taskDescription, Task.TaskTypes.EVENT);
 
-    public String[] splitInstruction(String line){
-        return line.trim().split(" ",2);
-    }
-
-    private void saveSafely() {
         try {
-            ArrayList<String> out = new ArrayList<>();
-            for (Task t : listOfTasks) {
-                out.add(toLine(t));
-            }
-            storage.saveLines(out);
+            task.setDateFromString(dateString);
+        } catch (IllegalArgumentException e) {
+            ui.showError(e.getMessage());
+            return;
+        }
+
+        tasks.add(task);
+        System.out.println("Ooh, this thing is coming up man: " + task);
+        saveTasksSafely();
+    }
+
+    private void handleDone(String arguments) {
+        int index = parseIndex(arguments);
+        if (index == -1) {
+            return;
+        }
+
+        Task task = tasks.get(index);
+        task.markAsDone();
+
+        System.out.println("Nice, get this outta the way: " + task);
+        saveTasksSafely();
+    }
+
+    private void handleUndo(String arguments) {
+        int index = parseIndex(arguments);
+        if (index == -1) {
+            return;
+        }
+
+        Task task = tasks.get(index);
+        task.markAsUndone();
+
+        System.out.println("You lied? How is this not done yet?: " + task);
+        saveTasksSafely();
+    }
+
+    private void handleDelete(String arguments) {
+        int index = parseIndex(arguments);
+        if (index == -1) {
+            return;
+        }
+
+        Task removed = tasks.remove(index);
+        System.out.println("I'll give you one last look of this, say goodbye to: " + removed);
+        saveTasksSafely();
+    }
+
+    // -------------------- helpers --------------------
+
+    private int parseIndex(String arguments) {
+        String trimmed = arguments.trim();
+
+        if (trimmed.isEmpty()) {
+            ui.showError("There ain't no Task number?");
+            return -1;
+        }
+
+        int oneBasedIndex;
+
+        try {
+            oneBasedIndex = Integer.parseInt(trimmed);
+        } catch (NumberFormatException e) {
+            ui.showError("Number! Number do you know it.");
+            return -1;
+        }
+
+        int zeroBasedIndex = oneBasedIndex - 1;
+
+        if (zeroBasedIndex < 0 || zeroBasedIndex >= tasks.size()) {
+            ui.showError("Neh, I'm pretty sure that's not on our list.");
+            return -1;
+        }
+
+        return zeroBasedIndex;
+    }
+
+    private void saveTasksSafely() {
+        try {
+            storage.saveTasks(tasks);
         } catch (IOException e) {
-            System.out.println("Could not save tasks.");
+            ui.showError("Some problem with the save data, check it out mate.");
         }
     }
-
-    private String toLine(Task task) {
-
-        String doneFlag;
-        if (task.isDone()) {
-            doneFlag = "1";
-        } else {
-            doneFlag = "0";
-        }
-
-        String dateField = "";
-
-        if (task.getDate() != null) {
-            dateField = task.getDate().toString(); // yyyy-mm-dd
-        }
-
-        return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | " + dateField;
-    }
-
-    private Task parseTaskFromLine(String line) {
-        if (line == null || line.isBlank()) {
-            return null;
-        }
-
-        String[] parts = line.split(" \\| ", -1);
-        //if somehow theres less than 3 things (tasktype, doneness, name), the line is invalid
-        if (parts.length < 3) {
-            return null;
-        }
-
-        Task.TaskTypes type = Task.TaskTypes.valueOf(parts[0]);
-        boolean isDone = parts[1].equals("1");
-        String name = parts[2];
-
-        Task task = new Task(name, type);
-        task.setDone(isDone);
-
-        if (parts.length >= 4) {
-            String dateString = parts[3].trim();
-            if (!dateString.isEmpty()) {
-                if (type == Task.TaskTypes.DEADLINE || type == Task.TaskTypes.EVENT) {
-                    try {
-                        task.setDateFromString(dateString);
-                    } catch (IllegalArgumentException e) {
-                        //ignore
-                    }
-                }
-            }
-        }
-        return task;
-    }
-
-    public void doneTask(int index){
-        listOfTasks.get(index).markAsDone();
-        saveSafely();
-    }
-    public void undoTask(int index){
-        listOfTasks.get(index).markAsUndone();
-        saveSafely();
-    }
-    public void deleteTask(int index){
-        listOfTasks.remove(index);
-        saveSafely();
-    }
-
 }
+
 
 
