@@ -1,3 +1,5 @@
+package wertinator;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
@@ -5,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-//class Storage to handle the input/output of the progress
+//class wertinator.Storage to handle the input/output of the progress
 public class Storage{
     private final Path filePath;
 

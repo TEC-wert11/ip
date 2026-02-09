@@ -1,3 +1,5 @@
+package wertinator;
+
 public class Parser {
 
     public static String getCommandWord(String fullCommand) {

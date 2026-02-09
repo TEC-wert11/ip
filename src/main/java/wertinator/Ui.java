@@ -1,3 +1,5 @@
+package wertinator;
+
 import java.util.Scanner;
 
 public class Ui {
@@ -13,7 +15,7 @@ public class Ui {
 
     public void showWelcome() {
         System.out.println("Wassup guys! Wuchu guys doin? \n"
-                + "This is Wertinator, back doing some more werting action! \n"
+                + "This is wertinator.Wertinator, back doing some more werting action! \n"
                 + "What ya wanna do today?");
     }
 

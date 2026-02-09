@@ -1,3 +1,5 @@
+package wertinator;
+
 import java.io.IOException;
 
 public class Wertinator {
@@ -19,7 +21,7 @@ public class Wertinator {
     }
 
     public static void main(String[] args) {
-        new Wertinator("data/Wertinator.txt").run();
+        new Wertinator("data/wertinator.Wertinator.txt").run();
     }
 
     public void run(){
@@ -193,7 +195,7 @@ public class Wertinator {
         String trimmed = arguments.trim();
 
         if (trimmed.isEmpty()) {
-            ui.showError("There ain't no Task number?");
+            ui.showError("There ain't no wertinator.Task number?");
             return -1;
         }
 
