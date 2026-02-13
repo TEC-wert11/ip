@@ -1,5 +1,6 @@
 package wertinator;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
@@ -114,4 +115,33 @@ public class Storage{
         }
         return task;
     }
+
+    public List<String> loadCheerQuotes() {
+
+        ArrayList<String> quotes = new ArrayList<>();
+        Path path = Path.of("data", "cheer.txt");
+
+        // If file does not exist, just return empty list
+        if (!Files.exists(path)) {
+            return quotes;
+        }
+
+        try {
+            List<String> lines = Files.readAllLines(path,StandardCharsets.UTF_8);
+            for (int i = 0; i < lines.size(); i++) {
+                String line = lines.get(i).trim();
+
+                if (!line.isEmpty()) {
+                    quotes.add(line);
+                }
+            }
+        } catch (IOException e) {
+            // If something goes wrong reading file, return empty list
+            return quotes;
+        }
+
+        return quotes;
+    }
+
+
 }

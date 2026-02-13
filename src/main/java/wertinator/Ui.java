@@ -17,6 +17,7 @@ public class Ui {
         System.out.println("Wassup guys! Wuchu guys doin? \n"
                 + "This is wertinator.Wertinator, back doing some more werting action! \n"
                 + "What ya wanna do today?");
+        showLine();
     }
 
     public void showGoodbye() {
@@ -27,6 +28,12 @@ public class Ui {
     public void showError(String message) {
         System.out.println(message);
     }
+
+    public void showCheer(String quote) {
+        System.out.println(quote);
+        showLine();
+    }
+
 
     public void showLine() {
         System.out.println("________________________________________");
