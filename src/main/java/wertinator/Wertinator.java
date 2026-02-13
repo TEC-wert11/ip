@@ -1,6 +1,7 @@
 package wertinator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Wertinator {
     private Storage storage;
@@ -26,6 +27,8 @@ public class Wertinator {
 
     public void run(){
         ui.showWelcome();
+
+        final String FIND = "find";
 
         boolean sayGoodBye = false;
 
@@ -60,6 +63,9 @@ public class Wertinator {
             }
             else if (commandWord.equals("delete")) {
                 handleDelete(arguments);
+            }
+            else if (commandWord.equals(FIND)){
+                handleFind(arguments);
             }
             else {
                 ui.showError("Unknown command.");
@@ -150,6 +156,20 @@ public class Wertinator {
         tasks.add(task);
         System.out.println("Ooh, this thing is coming up man: " + task);
         saveTasksSafely();
+    }
+
+    private void handleFind(String arguments) {
+        if (arguments.isBlank()) {
+            ui.showError("Finding nothing is not exactly my specialty, ya know?");
+            return;
+        }
+
+        TaskList matchingTasks = tasks.findMatching(arguments);
+        System.out.println("Heres what I found:");
+
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            System.out.println((i + 1) + ". " + matchingTasks.get(i));
+        }
     }
 
     private void handleDone(String arguments) {
