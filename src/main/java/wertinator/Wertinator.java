@@ -1,7 +1,12 @@
 package wertinator;
 
 import java.io.IOException;
+<<<<<<< HEAD
 import java.util.ArrayList;
+=======
+import java.util.List;
+import java.util.Random;
+>>>>>>> branch-A-Cheer
 
 /**
  * Main class.
@@ -64,6 +69,8 @@ public class Wertinator {
             String commandWord = Parser.getCommandWord(fullCommand);
             String arguments = Parser.getArguments(fullCommand);
 
+            final String CHEER = "cheer";
+
             ui.showLine();
 
             if (commandWord.equals(BYE)) {
@@ -91,8 +98,21 @@ public class Wertinator {
             else if (commandWord.equals(DELETE)) {
                 handleDelete(arguments);
             }
+<<<<<<< HEAD
             else if (commandWord.equals(FIND)){
                 handleFind(arguments);
+=======
+            else if (commandWord.equals(CHEER)) {
+                List<String> quotes = storage.loadCheerQuotes();
+
+                if (quotes.size() == 0) {
+                    ui.showCheer("No cheer quotes found. Go and add some to data\\cheer.txt.");
+                } else {
+                    Random random = new Random();
+                    int index = random.nextInt(quotes.size());
+                    ui.showCheer(quotes.get(index));
+                }
+>>>>>>> branch-A-Cheer
             }
             else {
                 ui.showError("Unknown command.");
