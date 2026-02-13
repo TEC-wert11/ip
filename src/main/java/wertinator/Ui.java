@@ -2,6 +2,10 @@ package wertinator;
 
 import java.util.Scanner;
 
+/**
+ * Ui class
+ * handles formatted prints
+ */
 public class Ui {
     private Scanner scannedInput;
 

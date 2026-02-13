@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-//class wertinator.Storage to handle the input/output of the progress
+/**
+ * Storage class that help with input/output handling for saving of data to the external txt file.
+ */
 public class Storage{
     private final Path filePath;
 
@@ -15,6 +17,10 @@ public class Storage{
         this.filePath = Paths.get(relativePath);
     }
 
+    /**
+     * makes sure the .txt and its parent folder exists by creating one if its not there
+     * @throws IOException
+     */
     private void ensureExists() throws IOException {
         Path parent = filePath.getParent();
         if (parent != null){
@@ -25,6 +31,11 @@ public class Storage{
         }
     }
 
+    /**
+     * read the tasks that was left from last time and return the list of tasks
+     * @return
+     * @throws IOException
+     */
     public List<Task> loadTasks() throws IOException{
         List<String> lines = loadLines();
         List<Task> tasks = new ArrayList<Task>();
@@ -40,6 +51,11 @@ public class Storage{
         return tasks;
     }
 
+    /**
+     * Iterate through the Tasks in taskList, and saves each of the task into txt by lines
+     * @param taskList
+     * @throws IOException
+     */
     public void saveTasks(TaskList taskList) throws IOException {
         List<String> lines = new ArrayList<String>();
 
@@ -52,16 +68,31 @@ public class Storage{
         saveLines(lines);
     }
 
+    /**
+     * read the txt file
+     * @return
+     * @throws IOException
+     */
     public List<String> loadLines() throws IOException {
         ensureExists();
         return Files.readAllLines(filePath);
     }
 
+    /**
+     * save one line to txt file
+     * @param lines
+     * @throws IOException
+     */
     public void saveLines(List<String> lines) throws  IOException{
         ensureExists();
         Files.write(filePath,lines);
     }
 
+    /**
+     * converts task object to line in save format for txt
+     * @param task
+     * @return
+     */
     private String toLine(Task task) {
 
         String doneFlag;
@@ -81,6 +112,11 @@ public class Storage{
         return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | " + dateField;
     }
 
+    /**
+     * process one line of the save data into task object
+     * @param line
+     * @return
+     */
     private Task parseTaskFromLine(String line) {
         if (line == null || line.isBlank()) {
             return null;
