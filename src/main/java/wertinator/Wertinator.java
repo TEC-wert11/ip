@@ -42,6 +42,16 @@ public class Wertinator {
     public void run(){
         ui.showWelcome();
 
+        final String BYE = "bye";
+        final String LIST = "list";
+        final String TODO = "todo";
+        final String DEADLINE = "deadline";
+        final String EVENT = "event";
+        final String DONE = "done";
+        final String UNDO = "undo";
+        final String DELETE = "delete";
+
+
         boolean sayGoodBye = false;
 
         while (!sayGoodBye){
@@ -51,29 +61,29 @@ public class Wertinator {
 
             ui.showLine();
 
-            if (commandWord.equals("bye")) {
+            if (commandWord.equals(BYE)) {
                 ui.showGoodbye();
                 sayGoodBye = true;
             }
-            else if (commandWord.equals("list")) {
+            else if (commandWord.equals(LIST)) {
                 handleList();
             }
-            else if (commandWord.equals("todo")) {
+            else if (commandWord.equals(TODO)) {
                 handleTodo(arguments);
             }
-            else if (commandWord.equals("deadline")) {
+            else if (commandWord.equals(DEADLINE)) {
                 handleDeadline(arguments);
             }
-            else if (commandWord.equals("event")) {
+            else if (commandWord.equals(EVENT)) {
                 handleEvent(arguments);
             }
-            else if (commandWord.equals("done")) {
+            else if (commandWord.equals(DONE)) {
                 handleDone(arguments);
             }
-            else if (commandWord.equals("undo")) {
+            else if (commandWord.equals(UNDO)) {
                 handleUndo(arguments);
             }
-            else if (commandWord.equals("delete")) {
+            else if (commandWord.equals(DELETE)) {
                 handleDelete(arguments);
             }
             else {
