@@ -1,6 +1,7 @@
 package wertinator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Main class.
@@ -42,6 +43,7 @@ public class Wertinator {
     public void run(){
         ui.showWelcome();
 
+<<<<<<< HEAD
         final String BYE = "bye";
         final String LIST = "list";
         final String TODO = "todo";
@@ -51,6 +53,9 @@ public class Wertinator {
         final String UNDO = "undo";
         final String DELETE = "delete";
 
+=======
+        final String FIND = "find";
+>>>>>>> branch-Level-9
 
         boolean sayGoodBye = false;
 
@@ -85,6 +90,9 @@ public class Wertinator {
             }
             else if (commandWord.equals(DELETE)) {
                 handleDelete(arguments);
+            }
+            else if (commandWord.equals(FIND)){
+                handleFind(arguments);
             }
             else {
                 ui.showError("Unknown command.");
@@ -192,11 +200,28 @@ public class Wertinator {
         saveTasksSafely();
     }
 
+<<<<<<< HEAD
     /**
      * handles "mark ..."
      * marks specified numbered task as done
      * @param arguments
      */
+=======
+    private void handleFind(String arguments) {
+        if (arguments.isBlank()) {
+            ui.showError("Finding nothing is not exactly my specialty, ya know?");
+            return;
+        }
+
+        TaskList matchingTasks = tasks.findMatching(arguments);
+        System.out.println("Heres what I found:");
+
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            System.out.println((i + 1) + ". " + matchingTasks.get(i));
+        }
+    }
+
+>>>>>>> branch-Level-9
     private void handleDone(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
