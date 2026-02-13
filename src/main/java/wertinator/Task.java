@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * task class
+ */
 public class Task {
 
     public enum TaskTypes { TODO, DEADLINE, EVENT }
@@ -24,7 +27,9 @@ public class Task {
         this.date = null;
     }
 
-    //getters
+    /**
+     * getters
+     */
     public String getName() {
         return name;
     }
@@ -41,7 +46,10 @@ public class Task {
         return remarks;
     }
 
-    //setters
+    /**
+     * setters
+     */
+
     public void setRemarks(String remarks) {
         if (remarks == null) {
             this.remarks = "";
@@ -84,6 +92,10 @@ public class Task {
         this.doneness = false;
     }
 
+    /**
+     * method to convert task object to output string (when print(task) is called)
+     * @return
+     */
     @Override
     public String toString() {
         String doneSymbol;

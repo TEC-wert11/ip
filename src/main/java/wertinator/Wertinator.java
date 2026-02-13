@@ -2,11 +2,18 @@ package wertinator;
 
 import java.io.IOException;
 
+/**
+ * Main class.
+ */
 public class Wertinator {
     private Storage storage;
     private TaskList tasks;
     private Ui ui;
 
+    /**
+     * Class constructor.
+     * @param filePath
+     */
     public Wertinator(String filePath){
         ui = new Ui();
         storage = new Storage(filePath);
@@ -20,10 +27,18 @@ public class Wertinator {
         }
     }
 
+    /**
+     * main() method, doesnt really need any input. just constructs a Wertinator instance based on saved data and run it.
+     * @param args
+     */
     public static void main(String[] args) {
         new Wertinator("data/wertinator.Wertinator.txt").run();
     }
 
+    /**
+     * use a while loop to keep detecting lines of input and process based on different cases.
+     * Loop keeps running as long as "bye" is not inputted
+     */
     public void run(){
         ui.showWelcome();
 
@@ -67,6 +82,9 @@ public class Wertinator {
         }
     }
 
+    /**
+     * handles "list"
+     */
     private void handleList() {
         if (tasks.size() == 0) {
             System.out.println("Nothing to do yet. How nice!");
@@ -78,6 +96,10 @@ public class Wertinator {
         }
     }
 
+    /**
+     * handles "todo ..."
+     * @param arguments
+     */
     private void handleTodo(String arguments) {
         if (arguments.isBlank()) {
             ui.showError("To do what? Broman.");
@@ -91,6 +113,10 @@ public class Wertinator {
         saveTasksSafely();
     }
 
+    /**
+     * handles "deadline ... /...yyyy-mm-dd"
+     * @param arguments
+     */
     private void handleDeadline(String arguments) {
         String[] parts = arguments.split(" /by ", 2);
 
@@ -122,6 +148,10 @@ public class Wertinator {
         saveTasksSafely();
     }
 
+    /**
+     * handles "event ... /...yyyy-mm-dd"
+     * @param arguments
+     */
     private void handleEvent(String arguments) {
         String[] parts = arguments.split(" /at ", 2);
 
@@ -152,6 +182,11 @@ public class Wertinator {
         saveTasksSafely();
     }
 
+    /**
+     * handles "mark ..."
+     * marks specified numbered task as done
+     * @param arguments
+     */
     private void handleDone(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
@@ -165,6 +200,11 @@ public class Wertinator {
         saveTasksSafely();
     }
 
+    /**
+     * handles "unmark ..."
+     * marks specified numbered task as undone (tasks are undone by default)
+     * @param arguments
+     */
     private void handleUndo(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
@@ -178,6 +218,11 @@ public class Wertinator {
         saveTasksSafely();
     }
 
+    /**
+     * handles "delete ..."
+     * deletes specified numbered task from the list of tasks.
+     * @param arguments
+     */
     private void handleDelete(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
@@ -191,6 +236,11 @@ public class Wertinator {
 
     // -------------------- helpers --------------------
 
+    /**
+     * finds index from mark, unmark, delete operations
+     * @param arguments
+     * @return
+     */
     private int parseIndex(String arguments) {
         String trimmed = arguments.trim();
 
@@ -218,6 +268,9 @@ public class Wertinator {
         return zeroBasedIndex;
     }
 
+    /**
+     * save task into .txt save file
+     */
     private void saveTasksSafely() {
         try {
             storage.saveTasks(tasks);
