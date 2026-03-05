@@ -1,43 +1,45 @@
 package wertinator;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Storage class that help with input/output handling for saving of data to the external txt file.
  */
-public class Storage{
+public class Storage {
     private final Path filePath;
 
-    public Storage(String relativePath){
+    public Storage(String relativePath) {
         this.filePath = Paths.get(relativePath);
     }
 
     /**
      * makes sure the .txt and its parent folder exists by creating one if its not there
+     *
      * @throws IOException
      */
     private void ensureExists() throws IOException {
         Path parent = filePath.getParent();
-        if (parent != null){
+        if (parent != null) {
             Files.createDirectories(parent);
         }
-        if (!Files.exists(filePath)){
+        if (!Files.exists(filePath)) {
             Files.createFile(filePath);
         }
     }
 
     /**
      * read the tasks that was left from last time and return the list of tasks
+     *
      * @return
      * @throws IOException
      */
-    public List<Task> loadTasks() throws IOException{
+    public List<Task> loadTasks() throws IOException {
         List<String> lines = loadLines();
         List<Task> tasks = new ArrayList<Task>();
 
@@ -54,6 +56,7 @@ public class Storage{
 
     /**
      * Iterate through the Tasks in taskList, and saves each of the task into txt by lines
+     *
      * @param taskList
      * @throws IOException
      */
@@ -71,6 +74,7 @@ public class Storage{
 
     /**
      * read the txt file
+     *
      * @return
      * @throws IOException
      */
@@ -81,16 +85,18 @@ public class Storage{
 
     /**
      * save one line to txt file
+     *
      * @param lines
      * @throws IOException
      */
-    public void saveLines(List<String> lines) throws  IOException{
+    public void saveLines(List<String> lines) throws IOException {
         ensureExists();
-        Files.write(filePath,lines);
+        Files.write(filePath, lines);
     }
 
     /**
      * converts task object to line in save format for txt
+     *
      * @param task
      * @return
      */
@@ -99,8 +105,7 @@ public class Storage{
         String doneFlag;
         if (task.isDone()) {
             doneFlag = "1";
-        }
-        else {
+        } else {
             doneFlag = "0";
         }
 
@@ -115,6 +120,7 @@ public class Storage{
 
     /**
      * process one line of the save data into task object
+     *
      * @param line
      * @return
      */
@@ -142,8 +148,7 @@ public class Storage{
                 if (type == Task.TaskTypes.DEADLINE || type == Task.TaskTypes.EVENT) {
                     try {
                         task.setDateFromString(dateString);
-                    }
-                    catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException e) {
                         //ignore
                     }
                 }
@@ -163,7 +168,7 @@ public class Storage{
         }
 
         try {
-            List<String> lines = Files.readAllLines(path,StandardCharsets.UTF_8);
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
             for (int i = 0; i < lines.size(); i++) {
                 String line = lines.get(i).trim();
 

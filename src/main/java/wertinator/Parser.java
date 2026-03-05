@@ -8,6 +8,7 @@ public class Parser {
     /**
      * take the input string and find the first word (separated by " ")
      * return the word
+     *
      * @param fullCommand
      * @return
      */
@@ -25,6 +26,7 @@ public class Parser {
     /**
      * take the input string and find the phrase after the first word (separated by " ")
      * return the phrase
+     *
      * @param fullCommand
      * @return
      */

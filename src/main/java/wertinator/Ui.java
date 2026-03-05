@@ -7,7 +7,7 @@ import java.util.Scanner;
  * handles formatted prints
  */
 public class Ui {
-    private Scanner scannedInput;
+    private final Scanner scannedInput;
 
     public Ui() {
         scannedInput = new Scanner(System.in);
