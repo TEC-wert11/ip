@@ -9,10 +9,10 @@ import java.time.format.DateTimeParseException;
  */
 public class Task {
 
-    public enum TaskTypes { TODO, DEADLINE, EVENT }
+    public enum TaskTypes {TODO, DEADLINE, EVENT}
 
-    private String name;
-    private TaskTypes taskType;
+    private final String name;
+    private final TaskTypes taskType;
     private boolean doneness;
     private LocalDate date;
     private String remarks = "";
@@ -33,15 +33,19 @@ public class Task {
     public String getName() {
         return name;
     }
+
     public TaskTypes getTaskType() {
         return taskType;
     }
+
     public boolean isDone() {
         return doneness;
     }
+
     public LocalDate getDate() {
         return date;
     }
+
     public String getRemarks() {
         return remarks;
     }
@@ -94,15 +98,15 @@ public class Task {
 
     /**
      * method to convert task object to output string (when print(task) is called)
+     *
      * @return
      */
     @Override
     public String toString() {
         String doneSymbol;
-        if (doneness){
+        if (doneness) {
             doneSymbol = "X";
-        }
-        else {
+        } else {
             doneSymbol = " ";
         }
 

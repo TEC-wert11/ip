@@ -1,8 +1,6 @@
 package wertinator;
 
 import java.io.IOException;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -11,15 +9,16 @@ import java.util.Random;
  * Main class.
  */
 public class Wertinator {
-    private Storage storage;
+    private final Storage storage;
     private TaskList tasks;
-    private Ui ui;
+    private final Ui ui;
 
     /**
      * Class constructor.
+     *
      * @param filePath
      */
-    public Wertinator(String filePath){
+    public Wertinator(String filePath) {
         ui = new Ui();
         storage = new Storage(filePath);
         // load tasks
@@ -34,6 +33,7 @@ public class Wertinator {
 
     /**
      * main() method, doesnt really need any input. just constructs a Wertinator instance based on saved data and run it.
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -44,7 +44,7 @@ public class Wertinator {
      * use a while loop to keep detecting lines of input and process based on different cases.
      * Loop keeps running as long as "bye" is not inputted
      */
-    public void run(){
+    public void run() {
         ui.showWelcome();
 
         final String BYE = "bye";
@@ -61,7 +61,7 @@ public class Wertinator {
 
         boolean sayGoodBye = false;
 
-        while (!sayGoodBye){
+        while (!sayGoodBye) {
             String fullCommand = ui.readCommand();
             String commandWord = Parser.getCommandWord(fullCommand);
             String arguments = Parser.getArguments(fullCommand);
@@ -131,6 +131,7 @@ public class Wertinator {
 
     /**
      * handles "todo ..."
+     *
      * @param arguments
      */
     private void handleTodo(String arguments) {
@@ -148,6 +149,7 @@ public class Wertinator {
 
     /**
      * handles "deadline ... /...yyyy-mm-dd"
+     *
      * @param arguments
      */
     private void handleDeadline(String arguments) {
@@ -183,6 +185,7 @@ public class Wertinator {
 
     /**
      * handles "event ... /...yyyy-mm-dd"
+     *
      * @param arguments
      */
     private void handleEvent(String arguments) {
@@ -219,6 +222,7 @@ public class Wertinator {
     /**
      * handles "mark ..."
      * marks specified numbered task as done
+     *
      * @param arguments
      */
 
@@ -252,6 +256,7 @@ public class Wertinator {
     /**
      * handles "unmark ..."
      * marks specified numbered task as undone (tasks are undone by default)
+     *
      * @param arguments
      */
     private void handleUndo(String arguments) {
@@ -270,6 +275,7 @@ public class Wertinator {
     /**
      * handles "delete ..."
      * deletes specified numbered task from the list of tasks.
+     *
      * @param arguments
      */
     private void handleDelete(String arguments) {
@@ -287,6 +293,7 @@ public class Wertinator {
 
     /**
      * finds index from mark, unmark, delete operations
+     *
      * @param arguments
      * @return
      */
