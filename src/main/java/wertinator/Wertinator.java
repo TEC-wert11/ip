@@ -1,5 +1,11 @@
 package wertinator;
 
+import wertinator.parser.Parser;
+import wertinator.storage.Storage;
+import wertinator.task.Task;
+import wertinator.task.TaskList;
+import wertinator.ui.Ui;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
@@ -41,92 +47,91 @@ public class Wertinator {
     }
 
     /**
-     * use a while loop to keep detecting lines of input and process based on different cases.
-     * Loop keeps running as long as "bye" is not inputted
+     *
      */
     public void run() {
-        ui.showWelcome();
-
-        final String BYE = "bye";
-        final String LIST = "list";
-        final String TODO = "todo";
-        final String DEADLINE = "deadline";
-        final String EVENT = "event";
-        final String DONE = "done";
-        final String UNDO = "undo";
-        final String DELETE = "delete";
-
-
-        final String FIND = "find";
+        System.out.println(ui.showWelcome());
 
         boolean sayGoodBye = false;
 
         while (!sayGoodBye) {
             String fullCommand = ui.readCommand();
-            String commandWord = Parser.getCommandWord(fullCommand);
-            String arguments = Parser.getArguments(fullCommand);
+            System.out.println(ui.showLine());
 
-            final String CHEER = "cheer";
+            String response = getResponse(fullCommand);
+            System.out.println(response);
 
-            ui.showLine();
-
-            if (commandWord.equals(BYE)) {
-                ui.showGoodbye();
+            if (Parser.getCommandWord(fullCommand).equals("bye")) {
                 sayGoodBye = true;
             }
-            else if (commandWord.equals(LIST)) {
-                handleList();
-            }
-            else if (commandWord.equals(TODO)) {
-                handleTodo(arguments);
-            }
-            else if (commandWord.equals(DEADLINE)) {
-                handleDeadline(arguments);
-            }
-            else if (commandWord.equals(EVENT)) {
-                handleEvent(arguments);
-            }
-            else if (commandWord.equals(DONE)) {
-                handleDone(arguments);
-            }
-            else if (commandWord.equals(UNDO)) {
-                handleUndo(arguments);
-            }
-            else if (commandWord.equals(DELETE)) {
-                handleDelete(arguments);
-            }
-            else if (commandWord.equals(FIND)) {
-                handleFind(arguments);
-            }
-            else if (commandWord.equals(CHEER)) {
-                List<String> quotes = storage.loadCheerQuotes();
+        }
+    }
 
-                if (quotes.size() == 0) {
-                    ui.showCheer("No cheer quotes found. Go and add some to data\\cheer.txt.");
-                } else {
-                    Random random = new Random();
-                    int index = random.nextInt(quotes.size());
-                    ui.showCheer(quotes.get(index));
-                }
+    public String getResponse(String input) {
+        String commandWord = Parser.getCommandWord(input);
+        String arguments = Parser.getArguments(input);
+
+        if (commandWord.equals("bye")) {
+            return ui.showGoodbye();
+        }
+        else if (commandWord.equals("list")) {
+            return handleList();
+        }
+        else if (commandWord.equals("todo")) {
+            return handleTodo(arguments);
+        }
+        else if (commandWord.equals("deadline")) {
+            return handleDeadline(arguments);
+        }
+        else if (commandWord.equals("event")) {
+            return handleEvent(arguments);
+        }
+        else if (commandWord.equals("done")) {
+            return handleDone(arguments);
+        }
+        else if (commandWord.equals("undo")) {
+            return handleUndo(arguments);
+        }
+        else if (commandWord.equals("delete")) {
+            return handleDelete(arguments);
+        }
+        else if (commandWord.equals("find")) {
+            return handleFind(arguments);
+        }
+        else if (commandWord.equals("cheer")) {
+            List<String> quotes = storage.loadCheerQuotes();
+
+            if (quotes.isEmpty()) {
+                return ui.showCheer("No cheer quotes found. Go and add some to data\\cheer.txt.");
+            } else {
+                Random random = new Random();
+                int index = random.nextInt(quotes.size());
+                return ui.showCheer(quotes.get(index));
             }
-            else {
-                ui.showError("Unknown command.");
-            }
+        }
+        else {
+            return ui.showError("Unknown command.");
         }
     }
 
     /**
      * handles "list"
      */
-    private void handleList() {
+    private String handleList() {
         if (tasks.size() == 0) {
-            System.out.println("Nothing to do yet. How nice!");
-            return;
+            return "Nothing to do yet. How nice!";
         }
 
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
+
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ". " + tasks.get(i));
+            sb.append(i + 1).append(". ").append(tasks.get(i));
+            if (i < tasks.size() - 1) {
+                sb.append("\n");
+            }
         }
+        return sb.toString();
     }
 
     /**
@@ -134,17 +139,16 @@ public class Wertinator {
      *
      * @param arguments
      */
-    private void handleTodo(String arguments) {
+    private String handleTodo(String arguments) {
         if (arguments.isBlank()) {
-            ui.showError("To do what? Broman.");
-            return;
+            return ui.showError("To do what? Broman.");
         }
 
         Task task = new Task(arguments.trim(), Task.TaskTypes.TODO);
         tasks.add(task);
-
-        System.out.println("Gotcha, added this to the todo list: " + task);
         saveTasksSafely();
+
+        return "Gotcha, added this to the todo list: " + task;
     }
 
     /**
@@ -152,35 +156,32 @@ public class Wertinator {
      *
      * @param arguments
      */
-    private void handleDeadline(String arguments) {
+    private String handleDeadline(String arguments) {
         String[] parts = arguments.split(" /by ", 2);
 
         if (parts.length < 2) {
-            ui.showError("Follow the correct format man. like: deadline taskname1 /by yyyy-mm-dd");
-            return;
+            return ui.showError("Follow the correct format man. like: deadline taskname1 /by yyyy-mm-dd");
         }
 
         String taskDescription = parts[0].trim();
         String dateString = parts[1].trim();
 
         if (taskDescription.isEmpty()) {
-            ui.showError("I feel like some deadline is coming, but I cant tell what it is.\n"
+            return ui.showError("I feel like some deadline is coming, but I cant tell what it is.\n"
                     + "Hmm... do you know whats coming?");
-            return;
         }
 
         Task task = new Task(taskDescription, Task.TaskTypes.DEADLINE);
 
         try {
-            task.setDateFromString(dateString);
+            task.setByDateFromString(dateString);
         } catch (IllegalArgumentException e) {
-            ui.showError(e.getMessage());
-            return;
+            return ui.showError(e.getMessage());
         }
 
         tasks.add(task);
-        System.out.println("Roger in the dodger, ya better hurry up for this: " + task);
         saveTasksSafely();
+        return "Roger in the dodger, ya better hurry up for this: " + task;
     }
 
     /**
@@ -188,35 +189,48 @@ public class Wertinator {
      *
      * @param arguments
      */
-    private void handleEvent(String arguments) {
-        String[] parts = arguments.split(" /at ", 2);
+    private String handleEvent(String arguments) {
+        String[] fromParts = arguments.split(" /from ", 2);
 
-        if (parts.length < 2) {
-            ui.showError("Try using the proper format: event <task> /at yyyy-mm-dd");
-            return;
+        if (fromParts.length < 2) {
+            return ui.showError("Try using the proper format: event <task> /from yyyy-mm-dd /to yyyy-mm-dd");
         }
 
-        String taskDescription = parts[0].trim();
-        String dateString = parts[1].trim();
+        String taskDescription = fromParts[0].trim();
+        String fromAndToPart = fromParts[1].trim();
+
+        String[] toParts = fromAndToPart.split(" /to ", 2);
+
+        if (toParts.length < 2) {
+            return ui.showError("Try using the proper format: event <task> /from yyyy-mm-dd /to yyyy-mm-dd");
+        }
+
+        String fromString = toParts[0].trim();
+        String toString = toParts[1].trim();
 
         if (taskDescription.isEmpty()) {
-            ui.showError("Ya got me excited for a nothing event, how sad.");
-            return;
+            return ui.showError("Ya got me excited for a nothing event, how sad.");
+        }
+
+        if (fromString.isEmpty() || toString.isEmpty()) {
+            return ui.showError("Event needs both a start and end date.");
         }
 
         Task task = new Task(taskDescription, Task.TaskTypes.EVENT);
 
         try {
-            task.setDateFromString(dateString);
-        } catch (IllegalArgumentException e) {
-            ui.showError(e.getMessage());
-            return;
+            task.setFromDateFromString(fromString);
+            task.setToDateFromString(toString);
+        }
+        catch (IllegalArgumentException e) {
+            return ui.showError(e.getMessage());
         }
 
         tasks.add(task);
-        System.out.println("Ooh, this thing is coming up man: " + task);
         saveTasksSafely();
+        return "Ooh, this thing is coming up man: " + task;
     }
+
 
 
     /**
@@ -226,31 +240,38 @@ public class Wertinator {
      * @param arguments
      */
 
-    private void handleFind(String arguments) {
+    private String handleFind(String arguments) {
         if (arguments.isBlank()) {
-            ui.showError("Finding nothing is not exactly my specialty, ya know?");
-            return;
+            return ui.showError("Finding nothing is not exactly my specialty, ya know?");
         }
 
         TaskList matchingTasks = tasks.findMatching(arguments);
-        System.out.println("Heres what I found:");
 
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            System.out.println((i + 1) + ". " + matchingTasks.get(i));
+        if (matchingTasks.size() == 0) {
+            return "Heres what I found:\nNothing matched.";
         }
+
+        StringBuilder sb = new StringBuilder("Heres what I found:\n");
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            sb.append(i + 1).append(". ").append(matchingTasks.get(i));
+            if (i < matchingTasks.size() - 1) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
     }
 
-    private void handleDone(String arguments) {
+    private String handleDone(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
-            return;
+            return "";
         }
 
         Task task = tasks.get(index);
         task.markAsDone();
-
-        System.out.println("Nice, get this outta the way: " + task);
         saveTasksSafely();
+
+        return "Nice, get this outta the way: " + task;
     }
 
     /**
@@ -259,17 +280,17 @@ public class Wertinator {
      *
      * @param arguments
      */
-    private void handleUndo(String arguments) {
+    private String handleUndo(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
-            return;
+            return "";
         }
 
         Task task = tasks.get(index);
         task.markAsUndone();
-
-        System.out.println("You lied? How is this not done yet?: " + task);
         saveTasksSafely();
+
+        return "You lied? How is this not done yet?: " + task;
     }
 
     /**
@@ -278,15 +299,16 @@ public class Wertinator {
      *
      * @param arguments
      */
-    private void handleDelete(String arguments) {
+    private String handleDelete(String arguments) {
         int index = parseIndex(arguments);
         if (index == -1) {
-            return;
+            return "";
         }
 
         Task removed = tasks.remove(index);
-        System.out.println("I'll give you one last look of this, say goodbye to: " + removed);
         saveTasksSafely();
+
+        return "I'll give you one last look of this, say goodbye to: " + removed;
     }
 
     // -------------------- helpers --------------------
@@ -301,7 +323,6 @@ public class Wertinator {
         String trimmed = arguments.trim();
 
         if (trimmed.isEmpty()) {
-            ui.showError("There ain't no wertinator.Task number?");
             return -1;
         }
 
@@ -310,14 +331,12 @@ public class Wertinator {
         try {
             oneBasedIndex = Integer.parseInt(trimmed);
         } catch (NumberFormatException e) {
-            ui.showError("Number! Number do you know it.");
             return -1;
         }
 
         int zeroBasedIndex = oneBasedIndex - 1;
 
         if (zeroBasedIndex < 0 || zeroBasedIndex >= tasks.size()) {
-            ui.showError("Neh, I'm pretty sure that's not on our list.");
             return -1;
         }
 

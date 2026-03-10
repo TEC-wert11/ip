@@ -1,4 +1,4 @@
-package wertinator;
+package wertinator.task;
 
 import java.util.ArrayList;
 import java.util.List;

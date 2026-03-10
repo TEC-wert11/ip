@@ -3,6 +3,8 @@ package wertinator;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import wertinator.task.Task;
+import wertinator.task.TaskList;
 
 public class TaskListTest {
 

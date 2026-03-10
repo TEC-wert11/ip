@@ -1,4 +1,7 @@
-package wertinator;
+package wertinator.storage;
+
+import wertinator.task.Task;
+import wertinator.task.TaskList;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,14 +17,19 @@ import java.util.List;
 public class Storage {
     private final Path filePath;
 
+    /**
+     * Creates a storage object using the given relative file path.
+     *
+     * @param relativePath relative path to save file
+     */
     public Storage(String relativePath) {
         this.filePath = Paths.get(relativePath);
     }
 
     /**
-     * makes sure the .txt and its parent folder exists by creating one if its not there
+     * Makes sure the text file and its parent folder exist.
      *
-     * @throws IOException
+     * @throws IOException if file creation fails
      */
     private void ensureExists() throws IOException {
         Path parent = filePath.getParent();
@@ -34,14 +42,14 @@ public class Storage {
     }
 
     /**
-     * read the tasks that was left from last time and return the list of tasks
+     * Reads saved tasks and returns them as a list.
      *
-     * @return
-     * @throws IOException
+     * @return list of loaded tasks
+     * @throws IOException if reading fails
      */
     public List<Task> loadTasks() throws IOException {
         List<String> lines = loadLines();
-        List<Task> tasks = new ArrayList<Task>();
+        List<Task> tasks = new ArrayList<>();
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -55,13 +63,13 @@ public class Storage {
     }
 
     /**
-     * Iterate through the Tasks in taskList, and saves each of the task into txt by lines
+     * Saves all tasks from a task list into the text file.
      *
-     * @param taskList
-     * @throws IOException
+     * @param taskList task list to save
+     * @throws IOException if saving fails
      */
     public void saveTasks(TaskList taskList) throws IOException {
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
 
         for (int i = 0; i < taskList.size(); i++) {
             Task task = taskList.get(i);
@@ -73,10 +81,10 @@ public class Storage {
     }
 
     /**
-     * read the txt file
+     * Reads all lines from the save file.
      *
-     * @return
-     * @throws IOException
+     * @return list of lines
+     * @throws IOException if reading fails
      */
     public List<String> loadLines() throws IOException {
         ensureExists();
@@ -84,10 +92,10 @@ public class Storage {
     }
 
     /**
-     * save one line to txt file
+     * Writes lines into the save file.
      *
-     * @param lines
-     * @throws IOException
+     * @param lines lines to write
+     * @throws IOException if writing fails
      */
     public void saveLines(List<String> lines) throws IOException {
         ensureExists();
@@ -95,13 +103,12 @@ public class Storage {
     }
 
     /**
-     * converts task object to line in save format for txt
+     * Converts a task into one save-file line.
      *
-     * @param task
-     * @return
+     * @param task task to convert
+     * @return formatted save line
      */
     private String toLine(Task task) {
-
         String doneFlag;
         if (task.isDone()) {
             doneFlag = "1";
@@ -109,20 +116,41 @@ public class Storage {
             doneFlag = "0";
         }
 
-        String dateField = "";
-
-        if (task.getDate() != null) {
-            dateField = task.getDate().toString(); // yyyy-mm-dd
+        if (task.getTaskType() == Task.TaskTypes.TODO) {
+            return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | ";
         }
 
-        return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | " + dateField;
+        if (task.getTaskType() == Task.TaskTypes.DEADLINE) {
+            String byField = "";
+            if (task.getByDate() != null) {
+                byField = task.getByDate().toString();
+            }
+            return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | " + byField;
+        }
+
+        if (task.getTaskType() == Task.TaskTypes.EVENT) {
+            String fromField = "";
+            String toField = "";
+
+            if (task.getFromDate() != null) {
+                fromField = task.getFromDate().toString();
+            }
+            if (task.getToDate() != null) {
+                toField = task.getToDate().toString();
+            }
+
+            return task.getTaskType() + " | " + doneFlag + " | " + task.getName()
+                    + " | " + fromField + " | " + toField;
+        }
+
+        return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | ";
     }
 
     /**
-     * process one line of the save data into task object
+     * Processes one line of save data into a task object.
      *
-     * @param line
-     * @return
+     * @param line one save-file line
+     * @return parsed task, or null if invalid
      */
     private Task parseTaskFromLine(String line) {
         if (line == null || line.isBlank()) {
@@ -130,7 +158,6 @@ public class Storage {
         }
 
         String[] parts = line.split(" \\| ", -1);
-        //if somehow theres less than 3 things (tasktype, doneness, name), the line is invalid
         if (parts.length < 3) {
             return null;
         }
@@ -142,27 +169,39 @@ public class Storage {
         Task task = new Task(name, type);
         task.setDone(isDone);
 
-        if (parts.length >= 4) {
-            String dateString = parts[3].trim();
-            if (!dateString.isEmpty()) {
-                if (type == Task.TaskTypes.DEADLINE || type == Task.TaskTypes.EVENT) {
-                    try {
-                        task.setDateFromString(dateString);
-                    } catch (IllegalArgumentException e) {
-                        //ignore
-                    }
+        try {
+            if (type == Task.TaskTypes.DEADLINE && parts.length >= 4) {
+                String byString = parts[3].trim();
+                if (!byString.isEmpty()) {
+                    task.setByDateFromString(byString);
+                }
+            } else if (type == Task.TaskTypes.EVENT && parts.length >= 5) {
+                String fromString = parts[3].trim();
+                String toString = parts[4].trim();
+
+                if (!fromString.isEmpty()) {
+                    task.setFromDateFromString(fromString);
+                }
+                if (!toString.isEmpty()) {
+                    task.setToDateFromString(toString);
                 }
             }
+        } catch (IllegalArgumentException e) {
+            return null;
         }
+
         return task;
     }
 
+    /**
+     * Loads cheer quotes from cheer.txt.
+     *
+     * @return list of cheer quotes
+     */
     public List<String> loadCheerQuotes() {
-
         ArrayList<String> quotes = new ArrayList<>();
         Path path = Path.of("data", "cheer.txt");
 
-        // If file does not exist, just return empty list
         if (!Files.exists(path)) {
             return quotes;
         }
@@ -177,12 +216,9 @@ public class Storage {
                 }
             }
         } catch (IOException e) {
-            // If something goes wrong reading file, return empty list
             return quotes;
         }
 
         return quotes;
     }
-
-
 }
