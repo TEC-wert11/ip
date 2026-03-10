@@ -1,12 +1,18 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
     id 'checkstyle'
 }
 
 repositories {
     mavenCentral()
+}
+
+javafx {
+    version = '21.0.1'
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
 }
 
 checkstyle {
@@ -33,12 +39,21 @@ test {
 }
 
 application {
-    mainClass.set("wertinator.Wertinator")
+    mainClass.set("wertinator.Launcher")
 }
 
 shadowJar {
-    archiveBaseName = "duke"
+    archiveBaseName = "wertinator"
     archiveClassifier = null
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
 run{

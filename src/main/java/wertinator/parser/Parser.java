@@ -1,4 +1,4 @@
-package wertinator;
+package wertinator.parser;
 
 /**
  * Parser class to handle parsing of input.

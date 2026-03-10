@@ -3,6 +3,7 @@ package wertinator;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import wertinator.task.Task;
 
 public class TaskTest {
 
