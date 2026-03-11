@@ -25,6 +25,8 @@ public class Wertinator {
      * @param filePath
      */
     public Wertinator(String filePath) {
+        assert filePath != null : "File path should not be null";
+
         ui = new Ui();
         storage = new Storage(filePath);
         // load tasks
@@ -68,6 +70,8 @@ public class Wertinator {
     }
 
     public String getResponse(String input) {
+        assert input != null : "User input should not be null";
+
         String commandWord = Parser.getCommandWord(input);
         String arguments = Parser.getArguments(input);
 
@@ -354,6 +358,3 @@ public class Wertinator {
         }
     }
 }
-
-
-
