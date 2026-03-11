@@ -121,8 +121,10 @@ public class Storage {
             doneFlag = "0";
         }
 
+        String base = task.getTaskType() + " | " + doneFlag + " | " + task.getName();
+
         if (task.getTaskType() == Task.TaskTypes.TODO) {
-            return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | ";
+            return base + " | ";
         }
 
         if (task.getTaskType() == Task.TaskTypes.DEADLINE) {
@@ -130,7 +132,7 @@ public class Storage {
             if (task.getByDate() != null) {
                 byField = task.getByDate().toString();
             }
-            return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | " + byField;
+            return base + " | " + byField;
         }
 
         if (task.getTaskType() == Task.TaskTypes.EVENT) {
@@ -144,11 +146,10 @@ public class Storage {
                 toField = task.getToDate().toString();
             }
 
-            return task.getTaskType() + " | " + doneFlag + " | " + task.getName()
-                    + " | " + fromField + " | " + toField;
+            return base + " | " + fromField + " | " + toField;
         }
 
-        return task.getTaskType() + " | " + doneFlag + " | " + task.getName() + " | ";
+        return base + " | ";
     }
 
     /**

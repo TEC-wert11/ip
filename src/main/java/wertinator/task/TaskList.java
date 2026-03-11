@@ -78,7 +78,7 @@ public class TaskList {
      * @return list of all tasks
      */
     public ArrayList<Task> getAll() {
-        return tasks;
+        return new ArrayList<>(tasks);
     }
 
     /**

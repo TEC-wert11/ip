@@ -19,6 +19,17 @@ public class Wertinator {
     private TaskList tasks;
     private final Ui ui;
 
+    private static final String COMMAND_BYE = "bye";
+    private static final String COMMAND_LIST = "list";
+    private static final String COMMAND_TODO = "todo";
+    private static final String COMMAND_DEADLINE = "deadline";
+    private static final String COMMAND_EVENT = "event";
+    private static final String COMMAND_DONE = "done";
+    private static final String COMMAND_UNDO = "undo";
+    private static final String COMMAND_DELETE = "delete";
+    private static final String COMMAND_FIND = "find";
+    private static final String COMMAND_CHEER = "cheer";
+
     /**
      * Class constructor.
      *
@@ -75,34 +86,34 @@ public class Wertinator {
         String commandWord = Parser.getCommandWord(input);
         String arguments = Parser.getArguments(input);
 
-        if (commandWord.equals("bye")) {
+        if (commandWord.equals(COMMAND_BYE)) {
             return ui.showGoodbye();
         }
-        else if (commandWord.equals("list")) {
+        else if (commandWord.equals(COMMAND_LIST)) {
             return handleList();
         }
-        else if (commandWord.equals("todo")) {
+        else if (commandWord.equals(COMMAND_TODO)) {
             return handleTodo(arguments);
         }
-        else if (commandWord.equals("deadline")) {
+        else if (commandWord.equals(COMMAND_DEADLINE)) {
             return handleDeadline(arguments);
         }
-        else if (commandWord.equals("event")) {
+        else if (commandWord.equals(COMMAND_EVENT)) {
             return handleEvent(arguments);
         }
-        else if (commandWord.equals("done")) {
+        else if (commandWord.equals(COMMAND_DONE)) {
             return handleDone(arguments);
         }
-        else if (commandWord.equals("undo")) {
+        else if (commandWord.equals(COMMAND_UNDO)) {
             return handleUndo(arguments);
         }
-        else if (commandWord.equals("delete")) {
+        else if (commandWord.equals(COMMAND_DELETE)) {
             return handleDelete(arguments);
         }
-        else if (commandWord.equals("find")) {
+        else if (commandWord.equals(COMMAND_FIND)) {
             return handleFind(arguments);
         }
-        else if (commandWord.equals("cheer")) {
+        else if (commandWord.equals(COMMAND_CHEER)) {
             List<String> quotes = storage.loadCheerQuotes();
 
             if (quotes.isEmpty()) {
@@ -126,8 +137,7 @@ public class Wertinator {
             return "Nothing to do yet. How nice!";
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n");
+        StringBuilder sb = new StringBuilder("Here are your tasks:\n");
 
         for (int i = 0; i < tasks.size(); i++) {
             sb.append(i + 1).append(". ").append(tasks.get(i));
