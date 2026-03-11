@@ -34,7 +34,7 @@ public class TaskList {
     }
 
     public ArrayList<Task> getAll() {
-        return tasks;
+        return new ArrayList<>(tasks);
     }
 
     public TaskList findMatching(String keyword) {
