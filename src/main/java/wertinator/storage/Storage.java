@@ -23,6 +23,7 @@ public class Storage {
      * @param relativePath relative path to save file
      */
     public Storage(String relativePath) {
+        assert relativePath != null : "Storage file path should not be null";
         this.filePath = Paths.get(relativePath);
     }
 
@@ -69,6 +70,7 @@ public class Storage {
      * @throws IOException if saving fails
      */
     public void saveTasks(TaskList taskList) throws IOException {
+        assert taskList != null : "Task list to save should not be null";
         List<String> lines = new ArrayList<>();
 
         for (int i = 0; i < taskList.size(); i++) {
@@ -98,6 +100,7 @@ public class Storage {
      * @throws IOException if writing fails
      */
     public void saveLines(List<String> lines) throws IOException {
+        assert lines != null : "Lines to save should not be null";
         ensureExists();
         Files.write(filePath, lines);
     }
@@ -109,6 +112,8 @@ public class Storage {
      * @return formatted save line
      */
     private String toLine(Task task) {
+        assert task != null : "Task should not be null when converting to save line";
+
         String doneFlag;
         if (task.isDone()) {
             doneFlag = "1";

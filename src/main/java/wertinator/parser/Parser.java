@@ -13,6 +13,7 @@ public class Parser {
      * @return
      */
     public static String getCommandWord(String fullCommand) {
+        assert fullCommand != null : "Command input should not be null";
         String trimmed = fullCommand.trim();
 
         if (trimmed.isEmpty()) {
@@ -31,6 +32,7 @@ public class Parser {
      * @return
      */
     public static String getArguments(String fullCommand) {
+        assert fullCommand != null : "Command input should not be null";
         String trimmed = fullCommand.trim();
 
         String[] parts = trimmed.split(" ", 2);
